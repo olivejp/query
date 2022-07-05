@@ -24,36 +24,36 @@ http://localhost:8080/api/produit?page=0&size=10&sort=nomPropriete&numBP|startsW
 
 voici la liste des opérateurs:
 
-equals	Aucun restriction
-field1|equals=true
-
-field1|equals=blabla
-
-field1|equals=2
-
-notEquals	Aucun restriction
-field1|notEquals=true
-
-field1|notEquals=blabla
-
-field1|notEquals=2
-
-specified	Boolean => true | false
-field1|specified=true          (on test si la propriété est bien renseignée)
-
-field1|specified=false         (on test la nullité d'une propriété)
-
-contains	String => blablabla
-notContains	String => blablabla
-containsIn	String[] => blabla,blabla2
-startsWith	String => blablabla
-endsWith	String => blablabla
-greaterThan	Numeric => 2 | 2,2
-greaterThranOrEqual	Numeric => 2 | 2,2
-lessThan	Numeric => 2 | 2,2
-lessThanOrEqual	Numeric => 2 | 2,2
-in	String[] | Numeric[] | Date[]
-notIn	String[] | Numeric[] | Date[]	
+    equals	Aucun restriction
+    field1|equals=true
+    
+    field1|equals=blabla
+    
+    field1|equals=2
+    
+    notEquals	Aucun restriction
+    field1|notEquals=true
+    
+    field1|notEquals=blabla
+    
+    field1|notEquals=2
+    
+    specified	Boolean => true | false
+    field1|specified=true          (on test si la propriété est bien renseignée)
+    
+    field1|specified=false         (on test la nullité d'une propriété)
+    
+    contains	String => blablabla
+    notContains	String => blablabla
+    containsIn	String[] => blabla,blabla2
+    startsWith	String => blablabla
+    endsWith	String => blablabla
+    greaterThan	Numeric => 2 | 2,2
+    greaterThranOrEqual	Numeric => 2 | 2,2
+    lessThan	Numeric => 2 | 2,2
+    lessThanOrEqual	Numeric => 2 | 2,2
+    in	String[] | Numeric[] | Date[]
+    notIn	String[] | Numeric[] | Date[]	
 
 
 
@@ -61,24 +61,69 @@ notIn	String[] | Numeric[] | Date[]
 
 ## FilterModel côté Angular
 
-export class Filter {
-constructor(
-public field: string,
-public value: unknown,
-public operator?: string
-) {}
-}
+    export class Filter {
+        constructor(
+        public field: string,
+        public value: unknown,
+        public operator?: string
+        ) {}
+    }
+    
+    export enum OperatorFilter {
+        EQUALS = 'equals',
+        NOT_EQUALS = 'notEquals',
+        START_WITH = 'startsWith',
+        END_WITH = 'endsWith',
+        CONTAINS = 'contains',
+        CONTAINS_IN = 'containsIn',
+        NOT_CONTAINS = 'notContains',
+        GREATER_THAN = 'greaterThan',
+        GREATER_THAN_OR_EQUAL = 'greaterThanOrEqual',
+        LESS_THAN = 'lessThan',
+        LESS_THAN_OR_EQUAL = 'lessThanOrEqual',
+    }
 
-export enum OperatorFilter {
-EQUALS = 'equals',
-NOT_EQUALS = 'notEquals',
-START_WITH = 'startsWith',
-END_WITH = 'endsWith',
-CONTAINS = 'contains',
-CONTAINS_IN = 'containsIn',
-NOT_CONTAINS = 'notContains',
-GREATER_THAN = 'greaterThan',
-GREATER_THAN_OR_EQUAL = 'greaterThanOrEqual',
-LESS_THAN = 'lessThan',
-LESS_THAN_OR_EQUAL = 'lessThanOrEqual',
-}
+
+
+
+
+    FORMAT_ISO_DATE_TIME = 'yyyy-MM-dd HH:mm:ss';
+    
+    serializeDate(date: Date): string {
+    return formatDate(date, this.FORMAT_ISO_DATE_TIME, 'fr-FR');
+    }
+    
+    createRequestOption(
+    pagination?: IPagination,
+    filters?: Filter[]
+    ): HttpParams {
+    let options: HttpParams = new HttpParams();
+
+    if (pagination) {
+      Object.keys(pagination).forEach((key: string) => {
+        if (key !== 'sort') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          options = options.set(key, pagination[key]);
+        }
+      });
+      if (pagination['sort']) {
+        pagination['sort'].forEach((val: string) => {
+          options = options.append('sort', val);
+        });
+      }
+    }
+
+    if (filters) {
+      filters.forEach((filter: Filter) => {
+        const operator = filter.operator ? `|${filter.operator}` : '';
+        const isDate = filter.value instanceof Date;
+        const filterValue = isDate
+          ? this.serializeDate(filter.value as Date)
+          : filter.value;
+        options = options.set(
+          `${filter.field}${operator}`,
+          filterValue as string | number | boolean
+        );
+      });
+    }
