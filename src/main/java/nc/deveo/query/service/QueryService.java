@@ -228,7 +228,9 @@ public abstract class QueryService<E, R extends JpaSpecificationExecutor<E>> {
                                               Map.Entry<String, String> param,
                                               String searchOperator) throws ParseException {
         if (entityPropertyType.isEnum()) {
-            List<Enum> listEnumValue = Arrays.stream(param.getValue().split(",")).map(enumValue -> Enum.valueOf((Class<? extends Enum>) entityPropertyType, enumValue)).collect(Collectors.toList());
+            List<Enum> listEnumValue = Arrays.stream(param.getValue().split(","))
+                    .map(enumValue -> Enum.valueOf((Class<? extends Enum>) entityPropertyType, enumValue))
+                    .collect(Collectors.toList());
             criteriaFilterPropertyAccessor.setPropertyValue(searchOperator, listEnumValue);
         } else {
             List<Object> valueList = parseAndCastList(param.getValue().split(","), entityPropertyType);
