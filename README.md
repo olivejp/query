@@ -127,3 +127,6 @@ voici la liste des opérateurs:
         );
       });
     }
+
+    return options;
+    }
