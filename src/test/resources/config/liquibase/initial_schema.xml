@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <!--
+        Added the entity Agence.
+    -->
+    <changeSet id="creation-contrat-table" author="JPOLIVE">
+        <sql>
+            CREATE TABLE contrat
+            (
+                id  BIGINT NOT NULL PRIMARY KEY,
+                nom VARCHAR
+            );
+
+            CREATE TABLE facture
+            (
+                id         BIGINT NOT NULL,
+                libelle    VARCHAR(255),
+                contrat_id BIGINT,
+                CONSTRAINT pk_facture PRIMARY KEY (id)
+            );
+
+            ALTER TABLE facture
+                ADD CONSTRAINT FK_FACTURE_ON_CONTRAT FOREIGN KEY (contrat_id) REFERENCES contrat (id);
+        </sql>
+    </changeSet>
+</databaseChangeLog>
